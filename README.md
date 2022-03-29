@@ -1,31 +1,25 @@
-# curriculum-databases-projects-template
+# VET CLINIC
+> This repository contains sql files that allows the creation of the vet_clinic relational database in order to practice the structured query language (SQL) such as insert, delete, and update the database data, and make queries to get customized data.
 
-> This template should be used for database related projects at Microverse.
-> Generate your own repository, update this README and edit all files content while working on projects. You should not be adding any new files unless asked otherwise.
 
 
 ## Getting Started
 
 This repository includes files with plain SQL that can be used to recreate a database:
 
-- Use [schema.sql](./schema.sql) to create all tables.
-- Use [data.sql](./data.sql) to populate tables with sample data.
-- Check [queries.sql](./queries.sql) for examples of queries that can be run on a newly created database. **Important note: this file might include queries that make changes in the database (e.g., remove records). Use them responsibly!**
+- The [schema.sql](./schema.sql) file allows to create all database tables.
+- The [data.sql](./data.sql) file allows to populate tables with data.
+- The [queries.sql](./queries.sql) file display queries to get customized from the database.
 
 
 ## Authors
 
-👤 **Author1**
+👤 **Gabriela Sánchez Espirilla**
 
-- GitHub: [@githubhandle](https://github.com/githubhandle)
-- Twitter: [@twitterhandle](https://twitter.com/twitterhandle)
-- LinkedIn: [LinkedIn](https://linkedin.com/in/linkedinhandle)
+- GitHub: [@gabyse1](https://github.com/gabyse1)
+- LinkedIn: [gabyse](https://www.linkedin.com/in/gabyse/)
+- Twitter: [@gabyse0](https://twitter.com/gabyse0)
 
-👤 **Author2**
-
-- GitHub: [@githubhandle](https://github.com/githubhandle)
-- Twitter: [@twitterhandle](https://twitter.com/twitterhandle)
-- LinkedIn: [LinkedIn](https://linkedin.com/in/linkedinhandle)
 
 ## 🤝 Contributing
 
@@ -39,9 +33,7 @@ Give a ⭐️ if you like this project!
 
 ## Acknowledgments
 
-- Hat tip to anyone whose code was used
-- Inspiration
-- etc
+- Repository template: [Microverse](https://github.com/microverseinc/curriculum-template-databases)
 
 ## 📝 License
 
