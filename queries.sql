@@ -86,3 +86,92 @@ TWEEN '1990-01-01' AND '2000-12-31' GROUP BY species;
 ---------+--------------------
  pokemon | 3.0000000000000000
 (1 row)
+
+
+-- QUERY MULTIPLE TABLES --
+
+SELECT full_name as OWNER, name as PET FROM owners INNER JOIN animals ON owners.id =
+animals.owner_id WHERE owners.full_name = 'Melody Pond';
+
+SELECT full_name as OWNER, name as PET
+FROM (SELECT * FROM owners WHERE full_name = 'Melody Pond') OW
+INNER JOIN animals ON OW.id = animals.owner_id;
+    owner    |    pet
+-------------+------------
+ Melody Pond | Charmander
+ Melody Pond | Squirtle
+ Melody Pond | Blossom
+(3 rows)
+
+SELECT species.name as SPECIE, animals.name as PET FROM species INNER JOIN animals ON species.id =
+animals.specie_id WHERE species.name = 'Pokemon';
+
+SELECT SPE.name as SPECIE, animals.name as PET
+FROM (SELECT * FROM species WHERE name = 'Pokemon') SPE
+INNER JOIN animals ON SPE.id = animals.specie_id;
+ specie  |    pet
+---------+------------
+ Pokemon | Pikachu
+ Pokemon | Charmander
+ Pokemon | Squirtle
+ Pokemon | Blossom
+(4 rows)
+
+SELECT owners.full_name as OWNER, animals.name as PET
+FROM owners LEFT JOIN animals ON owners.id = animals.owner_id ORDER BY owners.id;
+      owner      |    pet
+-----------------+------------
+ Sam Smith       | Agumon
+ Jennifer Orwell | Gabumon
+ Jennifer Orwell | Pikachu
+ Bob             | Plantmon
+ Bob             | Devimon
+ Melody Pond     | Charmander
+ Melody Pond     | Squirtle
+ Melody Pond     | Blossom
+ Dean Winchester | Angemon
+ Dean Winchester | Boarmon
+ Jodie Whittaker |
+(11 rows)
+
+SELECT species.name as SPECIE, COUNT(species.name) AS NUM
+FROM species INNER JOIN animals
+ON species.id = animals.specie_id GROUP BY species.name;
+ specie  | num
+---------+-------
+ Pokemon |     4
+ Digimon |     6
+(2 rows)
+
+SELECT OWNERANIMALS.name as PET, species.name as SPECIE, OWNERANIMALS.full_name as OWNER
+FROM species
+INNER JOIN (SELECT *
+            FROM owners INNER JOIN animals
+            ON owners.id = animals.owner_id
+            WHERE owners.full_name = 'Jennifer Orwell') OWNERANIMALS
+ON species.id = OWNERANIMALS.specie_id
+WHERE species.name = 'Digimon';
+   pet   | specie  |      owner
+---------+---------+-----------------
+ Gabumon | Digimon | Jennifer Orwell
+(1 row)
+
+SELECT animals.name as PET, animals.escape_attempts as SCAPES, owners.full_name as OWNER
+FROM owners INNER JOIN animals
+ON owners.id = animals.owner_id
+WHERE owners.full_name = 'Dean Winchester' AND animals.escape_attempts = 0;
+ pet | scapes | owner
+-----+--------+-------
+(0 rows)
+
+SELECT owners.full_name AS OWNER, count(owners.full_name) as PETS
+FROM animals INNER JOIN owners ON animals.owner_id = owners.id 
+GROUP BY owners.full_name
+HAVING COUNT(owners.full_name) = (SELECT MAX(NUMPETS)
+                                    FROM (SELECT COUNT(animals.owner_id) as NUMPETS
+                                            FROM animals
+                                            GROUP BY animals.owner_id) OWNERPETS
+                                    );
+    owner    | pets
+-------------+------
+ Melody Pond |    3
