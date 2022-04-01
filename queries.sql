@@ -175,3 +175,115 @@ HAVING COUNT(owners.full_name) = (SELECT MAX(NUMPETS)
     owner    | pets
 -------------+------
  Melody Pond |    3
+
+
+-- QUERIES WITH MANY TO MANY TABLES RELATIONSHIPS --
+
+SELECT animals.name AS ANIMAL, visits.date_of_visit, vets.name AS VET
+FROM animals INNER JOIN visits ON animals.id = visits.animal_id
+INNER JOIN vets ON visits.vet_id = vets.id
+WHERE vets.name = 'William Tatcher' AND visits.date_of_visit = (SELECT MAX(visits.date_of_visit)
+                            FROM vets INNER JOIN visits ON vets.id = visits.vet_id
+                            WHERE vets.name = 'William Tatcher');
+ animal  | date_of_visit |       vet
+---------+---------------+-----------------
+ Blossom | 2021-01-11    | William Tatcher
+(1 row)
+
+SELECT vets.name AS VET, COUNT(DISTINCT visits.animal_id) AS NUMANIMALS
+FROM visits INNER JOIN vets ON visits.vet_id = vets.id
+GROUP BY (vets.name)
+HAVING vets.name = 'Stephanie Mendez';
+       vet        | numanimals
+------------------+------------
+ Stephanie Mendez |          4
+(1 row)
+
+SELECT vets.name as VETS, species.name AS spetializations
+FROM vets LEFT JOIN spetializations ON vets.id = spetializations.vet_id
+LEFT JOIN species ON spetializations.specie_id = species.id;
+       vets       | spetializations
+------------------+-----------------
+ William Tatcher  | Pokemon
+ Stephanie Mendez | Digimon
+ Stephanie Mendez | Pokemon
+ Jack Harkness    | Digimon
+ Maisy Smith      |
+(5 rows)
+
+
+SELECT animals.name AS ANIMAL, visits.date_of_visit, vets.name AS VET
+FROM vets INNER JOIN visits ON vets.id = visits.vet_id INNER JOIN animals ON visits.animal_id = animals.id
+WHERE vets.name = 'Stephanie Mendez' AND visits.date_of_visit BETWEEN '2020-04-01' AND '2020-08-30';
+
+SELECT animals.name AS ANIMAL, VETVISITS.date_of_visit, VETVISITS.name AS VET
+FROM animals INNER JOIN (SELECT visits.animal_id, visits.date_of_visit, vets.name
+                          FROM vets INNER JOIN visits ON vets.id = visits.vet_id
+                          WHERE vets.name = 'Stephanie Mendez'
+                          AND visits.date_of_visit BETWEEN '2020-04-01' AND '2020-08-30') VETVISITS
+                        ON animals.id = VETVISITS.animal_id;
+  animal   | date_of_visit |       vet
+---------+---------------+------------------
+ Agumon  | 2020-07-22    | Stephanie Mendez
+ Blossom | 2020-05-24    | Stephanie Mendez
+(2 rows)
+
+SELECT animals.name AS ANIMAL, COUNT(animals.name) AS VISITS
+FROM animals INNER JOIN visits ON animals.id = visits.animal_id
+GROUP BY animals.name
+HAVING COUNT(animals.name) = (SELECT MAX(NUMVISITS)
+                              FROM (SELECT COUNT(visits.animal_id) AS NUMVISITS, visits.animal_id
+                                      FROM visits
+                                      GROUP BY visits.animal_id) VISITBYANIMALS);
+ animal  | visits
+---------+--------
+ Boarmon |      4
+(1 row)
+
+SELECT animals.name AS ANIMAL, visits.date_of_visit, vets.name AS VET
+FROM animals INNER JOIN visits ON animals.id = visits.animal_id
+INNER JOIN vets ON visits.vet_id = vets.id
+WHERE vets.name = 'Maisy Smith' AND visits.date_of_visit = (SELECT MIN(visits.date_of_visit)
+                            FROM vets INNER JOIN visits ON vets.id = visits.vet_id
+                            WHERE vets.name = 'Maisy Smith');
+ animal  | date_of_visit |     vet
+---------+---------------+-------------
+ Boarmon | 2019-01-24    | Maisy Smith
+(1 row)
+
+SELECT animals.name AS ANIMAL, vets.name AS VET, visits.date_of_visit
+FROM animals INNER JOIN visits ON animals.id = visits.animal_id
+INNER JOIN vets ON visits.vet_id = vets.id
+WHERE visits.date_of_visit = (SELECT MAX(visits.date_of_visit) FROM visits);
+ animal  |       vet        | date_of_visit
+---------+------------------+---------------
+ Devimon | Stephanie Mendez | 2021-05-04
+(1 row)
+
+SELECT COUNT(*)
+FROM (SELECT animals.name, animals.specie_id, visits.vet_id
+      FROM visits INNER JOIN animals ON visits.animal_id = animals.id) A
+LEFT JOIN (SELECT vets.name, spetializations.vet_id, spetializations.specie_id
+          FROM vets INNER JOIN spetializations ON vets.id = spetializations.vet_id) B
+ON A.vet_id = B.vet_id AND A.specie_id = B.specie_id
+WHERE B.specie_id IS NULL;
+ count
+-------
+    12
+(1 row)
+
+SELECT species.name AS LIKELYSPETIALIZATION
+FROM (SELECT animals.specie_id
+      FROM (((SELECT * FROM vets WHERE vets.name = 'Maisy Smith') VET INNER JOIN visits ON VET.id = visits.vet_id)
+      INNER JOIN animals ON visits.animal_id = animals.id)
+      GROUP BY animals.specie_id
+      HAVING COUNT(animals.specie_id) = (SELECT MAX(VISITSPERSPECIE)
+                                        FROM (SELECT animals.specie_id, count(animals.specie_id) as VISITSPERSPECIE
+                                              FROM (((SELECT * FROM vets WHERE vets.name = 'Maisy Smith') VET INNER JOIN visits ON VET.id = visits.vet_id)
+                                              INNER JOIN animals ON visits.animal_id = animals.id)
+                                              GROUP BY animals.specie_id) VETVISITS)
+    ) MOSTSPECIE INNER JOIN species ON MOSTSPECIE.specie_id = species.id;
+ likelyspetialization
+----------------
+ Digimon
+(1 row)
