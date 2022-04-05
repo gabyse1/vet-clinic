@@ -67,3 +67,14 @@ CREATE TABLE visits (
         REFERENCES vets(id)
         ON DELETE RESTRICT
 );
+
+ALTER TABLE owners ADD COLUMN email VARCHAR(120);
+
+CREATE INDEX visits_vetid_asc ON visits(vet_id ASC);
+explain analyze SELECT * FROM visits where vet_id = 2;
+
+CREATE INDEX visits_animalid_asc ON visits(animal_id ASC);
+explain analyze SELECT COUNT(*) FROM visits where animal_id = 4;
+
+CREATE INDEX owners_email_asc ON owners(email ASC);
+explain analyze SELECT * FROM owners where email = 'owner_18327@mail.com';
